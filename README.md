@@ -1,0 +1,2 @@
+# PyFightTactics
+ TFT simulator Python
