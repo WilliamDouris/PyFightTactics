@@ -7,19 +7,17 @@ class ClassBoard:
     BoardRow = 3
     BoardCols = 4
 
-    # BoardHex - Contain a dictionary [UID, ClassChampion, Hex_q, Hex_r]]
+    # BoardHex - Contain a dictionary [ClassChampion, Team, Hex_q, Hex_r]]
     Board_Hex = []
 
     def __init__(self):
         pass
 
     def add_angry_dummy(self, team, hex_q, hex_r):
-        self.Board_Hex.append([ClassAngryDummy(), hex_q, hex_r])
-        self.UID = self.UID + 1
+        self.Board_Hex.append([ClassAngryDummy(), team, hex_q, hex_r])
 
     def add_dummy(self, team, hex_q, hex_r):
-        self.Board_Hex.append([ClassDummy(), hex_q, hex_r])
-        self.UID = self.UID + 1
+        self.Board_Hex.append([ClassDummy(), team, hex_q, hex_r])
 
     def update(self):
         for champ in self.Board_Hex:
