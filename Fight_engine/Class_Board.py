@@ -1,25 +1,25 @@
-from Fight_engine.Class_Angry_Dummy import ClassAngryDummy
-from Fight_engine.Class_Dummy import ClassDummy
+from Fight_engine.Class_Champion import Class_Champion
+from Fight_engine import globals_variable
 
-
-class ClassBoard:
+class Class_Board:
     # Setup variable - Will be moved to a configuration file later
     BoardRow = 3
     BoardCols = 4
 
-    # BoardHex - Contain a dictionary [ClassChampion, Team, Hex_q, Hex_r]]
-    Board_Hex = []
-
     def __init__(self):
         pass
 
-    def add_angry_dummy(self, team, hex_q, hex_r):
-        self.Board_Hex.append([ClassAngryDummy(), team, hex_q, hex_r])
+    def add_champion(self, champion_name, team, hex_q, hex_r):
+        champ = Class_Champion(champion_name)
+        champ.q = hex_q
+        champ.r = hex_r
+        globals_variable.Board_Hex.append([champ, team, hex_q, hex_r])
+        globals_variable.Board_Hex_q_r[hex_q][hex_r] = champ
+        # Board_Hex_q_r[q][r] = [Champion] # None if no champ
+        # Board_Hex_champion = [Champion]
+        # Board_Hex_team[team] = [Champion]
 
-    def add_dummy(self, team, hex_q, hex_r):
-        self.Board_Hex.append([ClassDummy(), team, hex_q, hex_r])
 
     def update(self):
-        for champ in self.Board_Hex:
-            champ[1].update(self.Board_Hex)
-
+        for champ in globals_variable.Board_Hex:
+            champ[0].update()

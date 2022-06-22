@@ -1,20 +1,15 @@
-from Fight_engine.Class_Board import ClassBoard
-
-from Fight_engine.Class_Champion import Class_Champion
+from Fight_engine import globals_variable
+from Fight_engine.Class_Board import Class_Board
 
 if __name__ == '__main__':
-
-    Teemo = Class_Champion("Teemo")
-    Gragas = Class_Champion("Gragas")
-    Teemo.ultimate()
-    Gragas.ultimate()
-
-    """Board = ClassBoard()
-    Board.add_dummy("UP", 0, 1)
-    Board.add_angry_dummy("DOWN", 0, 1)
-
-    for i in range(10):
-        print(f"update {i}")
-        Board.update()"""
+    Board = Class_Board()
+    Board.add_champion("angry_dummy", "DOWN", 0, 0)
+    Board.add_champion("dummy", "UP", -2, 0)
+    print(globals_variable.Board_Hex_q_r)
+    globals_variable.Board_Hex[0][0].nearest_in_range()
+    for time_ms_simu in range(0):
+        globals_variable.time_ms = time_ms_simu
+        #print(f"Time : {globals_variable.time_ms}")
+        Board.update()
 
 

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<data>
+    <champion name="dummy">
+        <AD>0</AD>
+        <AS>1</AS>
+        <MR>40</MR>
+        <ARMOR>40</ARMOR>
+        <Total_HP>400</Total_HP>
+        <Range>1</Range>
+    </champion>
+    <champion name="angry_dummy">
+        <AD>90</AD>
+        <AS>0.75</AS>
+        <MR>25</MR>
+        <ARMOR>25</ARMOR>
+        <Total_HP>400</Total_HP>
+        <Range>1</Range>
+    </champion>
+</data>
+
