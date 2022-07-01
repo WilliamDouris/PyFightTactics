@@ -66,26 +66,33 @@ class Class_Champion:
     def nearest_in_range(self):
         pass
         # visited = [[["2,3"],["4,2"]#movement1],[["2,5"]["-1,3"]#movement2]
-        visited = [[[self.hex_q, self.hex_r]]]
+        visited = [[globals_variable.Hex(self.hex_q, self.hex_r)]]
         for k in range(int(self.champ_stats["Range"])):
-            for base_hex in visited[-1]:
+            print(f"---- range : {k} ----")
+            visited.append([])
+            print(f"visited : {visited}")
+            for base_hex in visited[-2]:
+                print(f"--- base_hex : {base_hex}")
                 for dir in globals_variable.Hex_direction:
-                    new_hex = [base_hex[0] + dir[0], base_hex[1] + dir[1]]
-                    #print([new_hex])
-                    #print(globals_variable.Board_Hex_q_r)
+                    print(base_hex)
+                    new_hex = base_hex + dir
+
                     is_visited = 0
                     for movement_visited in visited:
                         if is_visited == 1:
                             continue
                         for hex_visited in movement_visited:
-                            if hex_visited[0] == new_hex[0] and hex_visited[1] == new_hex[1]:
+                            if hex_visited == new_hex:
                                 is_visited = 1
                                 continue
-                    if is_visited == 0:  # if visited check is there is a champ there
-                        if globals_variable.Board_Hex_q_r[new_hex[0]][new_hex[1]] is not None and globals_variable.Board_Hex_q_r[new_hex[0]][new_hex[1]] != self:
+
+                    if is_visited == 0:  # if not visited check is there is a champ there
+                        if globals_variable.Board_Hex_q_r[new_hex.q][new_hex.r] is not None and globals_variable.Board_Hex_q_r[new_hex.q][new_hex.r] != self:
                             print(f"{dir[0]},{dir[1]}")
                             print(f"q={new_hex[0]} - r={new_hex[1]} - champ = {globals_variable.Board_Hex_q_r[new_hex[0]][new_hex[1]].champion_name}")
-                            return globals_variable.Board_Hex_q_r[new_hex[0]][new_hex[1]]
+                            return globals_variable.Board_Hex_q_r[new_hex.q][new_hex.r]
+                        else:
+                            visited[-1].append(new_hex)
 
         return None
 
