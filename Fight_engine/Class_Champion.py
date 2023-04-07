@@ -1,15 +1,16 @@
 import xml.etree.ElementTree as ET
 from Fight_engine import globals_variable
-
+from copy import deepcopy
 
 class Class_Champion:
 
-    def __init__(self, champion_name):
+    def __init__(self, champion_name, team):
         self.champion_name = champion_name
         self.champ_stats = {}
         self.attackStartAtMs = 0
         self.hex_q = 0
         self.hex_r = 0
+        self.team = team
 
         # Init champion stats
         tree = ET.parse('Champion_stats.xml')
@@ -54,51 +55,67 @@ class Class_Champion:
         # The reduction is confirmed with MR_armor_calculation.xlsx
         # NEED TO CONFIRM : Is % resistance rounded or dmg ?
         Champion.champ_stats["Actual_HP"] = Champion.champ_stats["Actual_HP"] - AD_dmg * round(
-            1 / 1 + (Champion.champ_stats["ARMOR"] / 100))
+            1 / (1 + (Champion.champ_stats["ARMOR"] / 100)))
         Champion.champ_stats["Actual_HP"] = Champion.champ_stats["Actual_HP"] - AP_dmg * round(
-            1 / 1 + (Champion.champ_stats["MR"] / 100))
+            1 / (1 + (Champion.champ_stats["MR"] / 100)))
         Champion.champ_stats["Actual_HP"] = Champion.champ_stats["Actual_HP"] - True_dmg
         print(f"Champion - HP left : {Champion.champ_stats['Actual_HP']}")
 
     def spell(self):
         self.spell_function(self.champ_stats)
 
-    def nearest_in_range(self):
-        pass
-        # visited = [[["2,3"],["4,2"]#movement1],[["2,5"]["-1,3"]#movement2]
-        visited = [[globals_variable.Hex(self.hex_q, self.hex_r)]]
+    def nearest_in_range(self, team):
+
+        # Define local variable
+        board_local = deepcopy(globals_variable.Board_Hex_r_q) # Will store our tree of path
+        board_local[self.hex_r][self.hex_q] = "v"
+        hex_visited = [globals_variable.Hex(self.hex_q, self.hex_r)] # Store the Hex coordinate explored in the current iteration
+        hex_last_visited = []  # Store the Hex coordinate explored in last iteration
+
         for k in range(int(self.champ_stats["Range"])):
-            print(f"---- range : {k} ----")
-            visited.append([])
-            print(f"visited : {visited}")
-            for base_hex in visited[-2]:
-                print(f"--- base_hex : {base_hex}")
+            #print(f"---- range : {k} ----")
+
+            hex_last_visited = hex_visited
+            hex_visited = []
+
+            # Explore Hex discoverer in last iteration
+            for hex_base in hex_last_visited:
+                #print(f"--- base_hex : {hex_base.r} {hex_base.q}")
+
+                # Explore all direction around the Hex
                 for dir in globals_variable.Hex_direction:
-                    print(base_hex)
-                    new_hex = base_hex + dir
+                    hex_explore = hex_base + dir
+                    #print(f"--- new_hex : {hex_explore.r} {hex_explore.q}")
 
-                    is_visited = 0
-                    for movement_visited in visited:
-                        if is_visited == 1:
-                            continue
-                        for hex_visited in movement_visited:
-                            if hex_visited == new_hex:
-                                is_visited = 1
+                    try:
+                        Hex = board_local[hex_explore.r][hex_explore.q]
+                        if Hex is not None: # Visited or Champion
+                            if Hex == "v": # If visited
                                 continue
-
-                    if is_visited == 0:  # if not visited check is there is a champ there
-                        if globals_variable.Board_Hex_q_r[new_hex.q][new_hex.r] is not None and globals_variable.Board_Hex_q_r[new_hex.q][new_hex.r] != self:
-                            print(f"{dir[0]},{dir[1]}")
-                            print(f"q={new_hex[0]} - r={new_hex[1]} - champ = {globals_variable.Board_Hex_q_r[new_hex[0]][new_hex[1]].champion_name}")
-                            return globals_variable.Board_Hex_q_r[new_hex.q][new_hex.r]
-                        else:
-                            visited[-1].append(new_hex)
+                            elif Hex.team == team: # If the champion is from the wanted team
+                                #print(f"Champion find in {Hex.hex_q} {Hex.hex_r}")
+                                return Hex
+                            else: # If the champion is not from the wanted team
+                                #print(f"If the champion is not from the wanted team")
+                                hex_visited.append(globals_variable.Hex(hex_explore.q,hex_explore.r))
+                                Hex = "v"
+                        else: # The hex is empty
+                            hex_visited.append(globals_variable.Hex(hex_explore.q, hex_explore.r))
+                            Hex = "v"
+                    except:
+                        pass
 
         return None
 
+
     def update(self):
         # Check for AA Timing
-        if self.attackStartAtMs + 1000 / self.champ_stats["AS"] < globals_variable.time_ms:
-            print(f"{globals_variable.time_ms} - {self.champion_name} AA - {self.champ_stats['AS']}")
-            self.apply_dmg(globals_variable.Board_Hex[0][0], self.champ_stats["AD"], 0, 0)
-            self.attackStartAtMs = globals_variable.time_ms
+        champ = self.nearest_in_range(1 - self.team)
+        if champ is None: # Champ not in range - Try to move
+            # print("hi")
+            pass # TODO: Implement move
+        elif champ is not None:
+            if self.attackStartAtMs + 1000 / self.champ_stats["AS"] < globals_variable.time_ms:
+                print(f"{globals_variable.time_ms} - {self.champion_name} AA - {self.champ_stats['AS']}")
+                self.apply_dmg(champ, self.champ_stats["AD"], 0, 0)
+                self.attackStartAtMs = globals_variable.time_ms
